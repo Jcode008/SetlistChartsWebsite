@@ -706,22 +706,22 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Top toolbar: title + metadata */}
-      <div className="flex items-center gap-5 px-6 py-3 border-b border-border flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-5 px-3 sm:px-6 py-2.5 sm:py-3 border-b border-border">
         <input
           type="text"
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
-          className="text-lg font-light tracking-tight bg-transparent border-none focus:outline-none min-w-0 flex-shrink placeholder:text-muted-foreground/40"
+          className="text-base sm:text-lg font-light tracking-tight bg-transparent border-none focus:outline-none min-w-0 flex-shrink placeholder:text-muted-foreground/40"
           placeholder="Untitled chart"
         />
 
-        <div className="flex items-center gap-5 ml-auto flex-wrap">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 sm:gap-5 sm:ml-auto flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <label className="text-[10px] tracking-widest uppercase text-muted-foreground">Key</label>
             <select
               value={key}
               onChange={(e) => handleKeyChange(e.target.value)}
-              className="px-2 py-1 text-xs rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+              className="px-2 py-1.5 sm:py-1 text-xs rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
             >
               {KEYS.map((k) => (
                 <option key={k} value={k}>{k}</option>
@@ -729,24 +729,24 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
             </select>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <label className="text-[10px] tracking-widest uppercase text-muted-foreground">BPM</label>
             <input
               type="number"
               value={tempo}
               onChange={(e) => handleTempoChange(e.target.value)}
-              className="w-14 px-2 py-1 text-xs rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+              className="w-14 px-2 py-1.5 sm:py-1 text-xs rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
               min={20}
               max={300}
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <label className="text-[10px] tracking-widest uppercase text-muted-foreground">Time</label>
             <select
               value={timeSig}
               onChange={(e) => handleTimeSigChange(e.target.value)}
-              className="px-2 py-1 text-xs rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+              className="px-2 py-1.5 sm:py-1 text-xs rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
             >
               {TIME_SIGNATURES.map((ts) => (
                 <option key={ts} value={ts}>{ts}</option>
@@ -760,8 +760,8 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
         </div>
       </div>
 
-      {/* Insert toolbar */}
-      <div className="flex items-center gap-1 px-4 py-1.5 border-b border-border bg-card/30 flex-wrap">
+      {/* Insert toolbar - horizontally scrollable on mobile */}
+      <div className="flex items-center gap-1 px-2 sm:px-4 py-1.5 border-b border-border bg-card/30 overflow-x-auto scrollbar-none">
         {/* Section insert */}
         <div className="relative" ref={sectionMenuRef}>
           <button
@@ -779,7 +779,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
                 <button
                   key={s}
                   onClick={() => insertSection(s)}
-                  className="w-full text-left px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                  className="w-full text-left px-3 py-2.5 sm:py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
                 >
                   [{s}]
                 </button>
@@ -883,7 +883,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
             Quick
           </button>
           {showQuickChords && (
-            <div className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-lg p-3 z-50 min-w-[300px]">
+            <div className="absolute top-full left-0 sm:left-0 right-0 sm:right-auto mt-1 bg-card border border-border rounded-lg shadow-lg p-3 z-50 min-w-[250px] sm:min-w-[300px]">
               <label className="text-[10px] uppercase tracking-widest text-muted-foreground block mb-1.5">Type chords separated by spaces</label>
               <div className="flex gap-2">
                 <input
@@ -892,13 +892,13 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
                   value={quickChordInput}
                   onChange={(e) => setQuickChordInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") handleQuickChordSubmit(); if (e.key === "Escape") setShowQuickChords(false); }}
-                  className="flex-1 px-2 py-1 text-xs font-mono rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+                  className="flex-1 min-w-0 px-2 py-1.5 sm:py-1 text-xs font-mono rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
                   placeholder="Am F C G"
                   autoFocus
                 />
                 <button
                   onClick={handleQuickChordSubmit}
-                  className="px-2.5 py-1 text-xs rounded-md bg-accent text-primary-foreground hover:bg-accent/80 transition-colors"
+                  className="px-3 py-1.5 sm:py-1 text-xs rounded-md bg-accent text-primary-foreground hover:bg-accent/80 transition-colors shrink-0"
                 >
                   Insert
                 </button>
@@ -952,69 +952,69 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
         <div className="h-4 w-px bg-border mx-1" />
 
         {/* View mode toggles */}
-        <div className="flex items-center bg-foreground/[0.03] rounded-md p-0.5">
+        <div className="flex items-center bg-foreground/[0.03] rounded-md p-0.5 shrink-0">
           <button
             onClick={() => setViewMode("edit")}
-            className={`p-1.5 rounded transition-colors duration-200 ${viewMode === "edit" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2 sm:p-1.5 rounded transition-colors duration-200 ${viewMode === "edit" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             title="Edit"
           >
             <EditIcon />
           </button>
           <button
             onClick={() => setViewMode("split")}
-            className={`p-1.5 rounded transition-colors duration-200 ${viewMode === "split" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2 sm:p-1.5 rounded transition-colors duration-200 hidden sm:block ${viewMode === "split" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             title="Split view"
           >
             <SplitIcon />
           </button>
           <button
             onClick={() => setViewMode("preview")}
-            className={`p-1.5 rounded transition-colors duration-200 ${viewMode === "preview" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2 sm:p-1.5 rounded transition-colors duration-200 ${viewMode === "preview" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             title="Preview"
           >
             <PreviewIcon />
           </button>
         </div>
 
-        <div className="h-4 w-px bg-border mx-1" />
+        <div className="h-4 w-px bg-border mx-1 shrink-0" />
 
         {/* Drawing mode toggle */}
         <button
           onClick={() => { setDrawingMode(!drawingMode); if (!drawingMode && viewMode === "edit") setViewMode("preview"); }}
-          className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-md transition-colors duration-200 ${drawingMode ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"}`}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 text-[11px] rounded-md transition-colors duration-200 shrink-0 ${drawingMode ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"}`}
           title="Draw / Apple Pencil"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
           </svg>
-          Draw
+          <span className="hidden sm:inline">Draw</span>
         </button>
 
         {/* Notes toggle */}
         <button
           onClick={() => setShowNotes(!showNotes)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-md transition-colors duration-200 ${showNotes ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"}`}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 text-[11px] rounded-md transition-colors duration-200 shrink-0 ${showNotes ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"}`}
           title="Notes panel"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
-          Notes
+          <span className="hidden sm:inline">Notes</span>
         </button>
       </div>
 
       {/* Editor / Preview area */}
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-hidden flex relative">
         {/* Edit pane */}
         {(viewMode === "edit" || viewMode === "split") && (
           <div className={`overflow-y-auto ${viewMode === "split" ? "w-1/2 border-r border-border" : "flex-1"}`}>
-            <div className="max-w-3xl mx-auto px-6 py-6">
+            <div className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
               <textarea
                 ref={textareaRef}
                 value={content}
                 onChange={handleSmartInput}
                 onKeyDown={handleKeyDown}
-                className="w-full font-mono text-sm leading-7 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground/90 placeholder:text-muted-foreground/30"
+                className="w-full font-mono text-[13px] sm:text-sm leading-7 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground/90 placeholder:text-muted-foreground/30"
                 placeholder={`[Intro]\n| C     | Am    | F     | G     |\n\n[Verse 1]\n| Am    | Am    | F     | F     |\n> Lyrics go here...\n\nTips:\n• Type | then a chord + space to auto-format\n• Press Enter on a chord row to add another\n• Use Quick button for fast chord entry\n• Press Format or Ctrl+Shift+F to tidy up\n• Tab key jumps between beat positions in tabs`}
                 spellCheck={false}
               />
@@ -1046,7 +1046,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
         {/* Preview pane (with optional drawing overlay) */}
         {(viewMode === "preview" || viewMode === "split") && (
           <div className={`overflow-y-auto relative ${viewMode === "split" ? "w-1/2" : "flex-1"}`}>
-            <div className="max-w-3xl mx-auto px-6 py-6">
+            <div className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
               {renderPreview()}
 
               {/* Visual staff notation widgets */}
@@ -1079,34 +1079,41 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
           </div>
         )}
 
-        {/* Notes panel */}
+        {/* Notes panel - overlay on mobile, sidebar on desktop */}
         {showNotes && (
-          <div className="w-72 border-l border-border bg-card/50 flex flex-col shrink-0">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-              <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Notes</span>
-              <button
-                onClick={() => setShowNotes(false)}
-                className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            <textarea
-              value={notes}
-              onChange={(e) => handleNotesChange(e.target.value)}
-              className="flex-1 px-4 py-3 text-sm bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground/80 placeholder:text-muted-foreground/30 leading-6"
-              placeholder="Add performance notes, reminders, cues, dynamics markings..."
-              spellCheck={false}
+          <>
+            {/* Mobile backdrop */}
+            <div
+              className="fixed inset-0 bg-black/30 z-30 sm:hidden"
+              onClick={() => setShowNotes(false)}
             />
-          </div>
+            <div className="fixed sm:relative inset-y-0 right-0 z-40 sm:z-auto w-72 border-l border-border bg-card/95 sm:bg-card/50 backdrop-blur-sm sm:backdrop-blur-none flex flex-col shrink-0 shadow-xl sm:shadow-none">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
+                <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Notes</span>
+                <button
+                  onClick={() => setShowNotes(false)}
+                  className="p-1.5 sm:p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <textarea
+                value={notes}
+                onChange={(e) => handleNotesChange(e.target.value)}
+                className="flex-1 px-4 py-3 text-sm bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground/80 placeholder:text-muted-foreground/30 leading-6"
+                placeholder="Add performance notes, reminders, cues, dynamics markings..."
+                spellCheck={false}
+              />
+            </div>
+          </>
         )}
       </div>
 
       {/* Bottom bar */}
-      <div className="flex items-center justify-between px-6 py-2 border-t border-border text-[10px] text-muted-foreground/50 tracking-wide uppercase shrink-0">
+      <div className="flex items-center justify-between px-3 sm:px-6 py-2 border-t border-border text-[10px] text-muted-foreground/50 tracking-wide uppercase shrink-0">
         <span>{key} &middot; {tempo} bpm &middot; {timeSig}</span>
-        <div className="flex items-center gap-4">
-          <span>{content.split("\n").length} lines</span>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <span className="hidden sm:inline">{content.split("\n").length} lines</span>
           {drawingMode && <span className="text-accent">Drawing</span>}
           <span>{viewMode === "edit" ? "Edit" : viewMode === "preview" ? "Preview" : "Split"}</span>
         </div>

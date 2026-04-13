@@ -597,12 +597,12 @@ export default function StaffNotation({ data, onChange }: StaffNotationProps) {
   return (
     <div className="my-3 rounded-lg border border-border bg-card/50 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border bg-card/30 flex-wrap">
+      <div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 border-b border-border bg-card/30 overflow-x-auto scrollbar-none">
         {/* Clef selector */}
-        <div className="flex items-center gap-1 mr-2">
+        <div className="flex items-center gap-1 mr-2 shrink-0">
           <button
             onClick={() => onChange({ ...data, clef: "treble" })}
-            className={`px-2 py-0.5 text-sm rounded transition-colors ${
+            className={`px-2.5 sm:px-2 py-1.5 sm:py-0.5 text-sm rounded transition-colors ${
               data.clef === "treble" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"
             }`}
             title="Treble Clef"
@@ -611,7 +611,7 @@ export default function StaffNotation({ data, onChange }: StaffNotationProps) {
           </button>
           <button
             onClick={() => onChange({ ...data, clef: "bass" })}
-            className={`px-2 py-0.5 text-sm rounded transition-colors ${
+            className={`px-2.5 sm:px-2 py-1.5 sm:py-0.5 text-sm rounded transition-colors ${
               data.clef === "bass" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"
             }`}
             title="Bass Clef"
@@ -623,12 +623,12 @@ export default function StaffNotation({ data, onChange }: StaffNotationProps) {
         <div className="h-4 w-px bg-border" />
 
         {/* Duration selector */}
-        <div className="flex items-center gap-0.5 mx-2">
+        <div className="flex items-center gap-0.5 mx-2 shrink-0">
           {DURATIONS.map((d) => (
             <button
               key={d.value}
               onClick={() => setSelectedDuration(d.value)}
-              className={`px-2 py-0.5 text-sm rounded transition-colors ${
+              className={`px-2.5 sm:px-2 py-1.5 sm:py-0.5 text-sm rounded transition-colors ${
                 selectedDuration === d.value
                   ? "bg-accent/20 text-accent"
                   : "text-muted-foreground hover:text-foreground"
@@ -643,26 +643,26 @@ export default function StaffNotation({ data, onChange }: StaffNotationProps) {
         <div className="h-4 w-px bg-border" />
 
         {/* Action buttons */}
-        <div className="flex items-center gap-1 mx-2">
+        <div className="flex items-center gap-1 mx-2 shrink-0">
           {selectedNote && (
             <>
               <button
                 onClick={() => toggleAccidental(selectedNote)}
-                className="px-2 py-0.5 text-xs rounded text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                className="px-2.5 sm:px-2 py-1.5 sm:py-0.5 text-xs rounded text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
                 title="Toggle accidental (♯/♭/♮)"
               >
                 ♯/♭
               </button>
               <button
                 onClick={() => toggleRest(selectedNote)}
-                className="px-2 py-0.5 text-xs rounded text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                className="px-2.5 sm:px-2 py-1.5 sm:py-0.5 text-xs rounded text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
                 title="Toggle rest"
               >
                 𝄽
               </button>
               <button
                 onClick={() => deleteNote(selectedNote)}
-                className="px-2 py-0.5 text-xs rounded text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                className="px-2.5 sm:px-2 py-1.5 sm:py-0.5 text-xs rounded text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
                 title="Delete note (Del)"
               >
                 ✕
@@ -672,18 +672,18 @@ export default function StaffNotation({ data, onChange }: StaffNotationProps) {
         </div>
 
         {/* Bars control */}
-        <div className="flex items-center gap-1.5 ml-auto">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Bars</span>
+        <div className="flex items-center gap-1.5 ml-auto shrink-0">
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest hidden sm:inline">Bars</span>
           <button
             onClick={() => data.bars > 1 && onChange({ ...data, bars: data.bars - 1 })}
-            className="w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+            className="w-7 h-7 sm:w-5 sm:h-5 flex items-center justify-center rounded text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
           >
             −
           </button>
           <span className="text-xs text-foreground/70 w-4 text-center">{data.bars}</span>
           <button
             onClick={() => onChange({ ...data, bars: data.bars + 1 })}
-            className="w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+            className="w-7 h-7 sm:w-5 sm:h-5 flex items-center justify-center rounded text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
           >
             +
           </button>
@@ -727,8 +727,11 @@ export default function StaffNotation({ data, onChange }: StaffNotationProps) {
       </div>
 
       {/* Hint */}
-      <div className="px-3 py-1 border-t border-border text-[10px] text-muted-foreground/40 tracking-wide">
+      <div className="px-3 py-1 border-t border-border text-[10px] text-muted-foreground/40 tracking-wide hidden sm:block">
         Click to place note · Drag to move · Del to delete · # for accidentals · 1-5 for duration
+      </div>
+      <div className="px-3 py-1.5 border-t border-border text-[10px] text-muted-foreground/40 tracking-wide sm:hidden">
+        Tap to place note · Drag to move
       </div>
     </div>
   );

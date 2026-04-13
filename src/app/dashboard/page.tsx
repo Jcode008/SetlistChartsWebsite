@@ -149,36 +149,36 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-8 py-5">
+      <header className="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-5">
         <span className="text-sm font-medium tracking-widest uppercase text-foreground/70">BandApp</span>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">{userName}</span>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">{userName}</span>
           <ThemeToggle />
           <button
             onClick={handleSignOut}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
+            className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 py-1"
           >
             Sign Out
           </button>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-8 py-12">
-        <div className="flex items-end justify-between mb-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 py-6 sm:py-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10 gap-4">
           <div>
-            <h2 className="text-2xl font-light tracking-tight">Your Bands</h2>
+            <h2 className="text-xl sm:text-2xl font-light tracking-tight">Your Bands</h2>
             <p className="text-sm text-muted-foreground mt-1">Select a band or create a new one.</p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => { setShowCreate(true); setShowJoin(false); setError(""); }}
-              className="px-4 py-2 text-sm tracking-wide bg-foreground text-background rounded-md hover:bg-foreground/85 transition-colors duration-300"
+              className="px-4 py-2.5 sm:py-2 text-sm tracking-wide bg-foreground text-background rounded-md hover:bg-foreground/85 transition-colors duration-300"
             >
               Create
             </button>
             <button
               onClick={() => { setShowJoin(true); setShowCreate(false); setError(""); }}
-              className="px-4 py-2 text-sm tracking-wide border border-border rounded-md hover:border-foreground/30 transition-colors duration-300"
+              className="px-4 py-2.5 sm:py-2 text-sm tracking-wide border border-border rounded-md hover:border-foreground/30 transition-colors duration-300"
             >
               Join
             </button>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
 
         {/* Create Band Form */}
         {showCreate && (
-          <div className="border border-border rounded-md p-6 mb-8 bg-card">
+          <div className="border border-border rounded-md p-4 sm:p-6 mb-8 bg-card">
             <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground mb-4">New Band</h3>
             <form onSubmit={handleCreateBand} className="space-y-4">
               <div>
@@ -203,15 +203,15 @@ export default function DashboardPage() {
                   value={bandName}
                   onChange={(e) => setBandName(e.target.value)}
                   placeholder="e.g. The Velvet Sessions"
-                  className="w-full px-4 py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+                  className="w-full px-4 py-3 sm:py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
                   required
                 />
               </div>
               <div className="flex gap-3">
-                <button type="submit" className="px-5 py-2 text-sm bg-foreground text-background rounded-md hover:bg-foreground/85 transition-colors duration-300">
+                <button type="submit" className="px-5 py-2.5 sm:py-2 text-sm bg-foreground text-background rounded-md hover:bg-foreground/85 transition-colors duration-300">
                   Create
                 </button>
-                <button type="button" onClick={() => setShowCreate(false)} className="px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">
+                <button type="button" onClick={() => setShowCreate(false)} className="px-5 py-2.5 sm:py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">
                   Cancel
                 </button>
               </div>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
 
         {/* Join Band Form */}
         {showJoin && (
-          <div className="border border-border rounded-md p-6 mb-8 bg-card">
+          <div className="border border-border rounded-md p-4 sm:p-6 mb-8 bg-card">
             <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground mb-4">Join a Band</h3>
             <form onSubmit={handleJoinBand} className="space-y-4">
               <div>
@@ -231,16 +231,16 @@ export default function DashboardPage() {
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value)}
                   placeholder="8-character code"
-                  className="w-full px-4 py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300 uppercase font-mono tracking-widest"
+                  className="w-full px-4 py-3 sm:py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300 uppercase font-mono tracking-widest"
                   maxLength={8}
                   required
                 />
               </div>
               <div className="flex gap-3">
-                <button type="submit" className="px-5 py-2 text-sm bg-foreground text-background rounded-md hover:bg-foreground/85 transition-colors duration-300">
+                <button type="submit" className="px-5 py-2.5 sm:py-2 text-sm bg-foreground text-background rounded-md hover:bg-foreground/85 transition-colors duration-300">
                   Join
                 </button>
-                <button type="button" onClick={() => setShowJoin(false)} className="px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">
+                <button type="button" onClick={() => setShowJoin(false)} className="px-5 py-2.5 sm:py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">
                   Cancel
                 </button>
               </div>
@@ -260,7 +260,7 @@ export default function DashboardPage() {
               <button
                 key={band.id}
                 onClick={() => router.push(`/band/${band.id}`)}
-                className="w-full flex items-center justify-between px-6 py-5 bg-card border border-border rounded-md hover:border-foreground/20 transition-all duration-300 group text-left"
+                className="w-full flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 bg-card border border-border rounded-md hover:border-foreground/20 transition-all duration-300 group text-left active:scale-[0.99]"
               >
                 <div>
                   <h3 className="font-medium group-hover:text-accent transition-colors duration-300">

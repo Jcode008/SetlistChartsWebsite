@@ -52,7 +52,7 @@ export default function BandPage() {
   const [newChartTitle, setNewChartTitle] = useState("");
   const [showBandInfo, setShowBandInfo] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // closed by default on mobile
 
   const loadCharts = useCallback(async (setlistId: string) => {
     const { data } = await supabase
@@ -93,6 +93,8 @@ export default function BandPage() {
       setBand(bandData);
       await loadSetlists();
       setLoading(false);
+      // Open sidebar by default on desktop
+      if (window.innerWidth >= 768) setSidebarOpen(true);
     }
 
     init();
@@ -193,6 +195,12 @@ export default function BandPage() {
     loadCharts(id);
   }
 
+  // On mobile, close sidebar when selecting a chart
+  function handleSelectChart(id: string) {
+    setActiveChart(id);
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  }
+
   const activeChartData = charts.find((c) => c.id === activeChart);
 
   if (loading) {
@@ -206,27 +214,27 @@ export default function BandPage() {
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top Header */}
-      <header className="flex items-center justify-between px-5 py-3 border-b border-border bg-card/50 shrink-0">
-        <div className="flex items-center gap-4">
+      <header className="flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b border-border bg-card/50 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-colors duration-300"
+            className="p-2 sm:p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-colors duration-300 shrink-0"
             aria-label="Toggle sidebar"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <button onClick={() => router.push("/dashboard")} className="text-xs text-muted-foreground hover:text-foreground tracking-wide transition-colors duration-300">
+          <button onClick={() => router.push("/dashboard")} className="text-xs text-muted-foreground hover:text-foreground tracking-wide transition-colors duration-300 py-1 hidden sm:inline">
             ← Back
           </button>
-          <div className="h-4 w-px bg-border" />
-          <span className="text-sm font-medium tracking-wide">{band?.name}</span>
+          <div className="h-4 w-px bg-border hidden sm:block" />
+          <span className="text-sm font-medium tracking-wide truncate">{band?.name}</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <button
             onClick={() => setShowBandInfo(!showBandInfo)}
-            className="text-xs text-muted-foreground hover:text-foreground tracking-wide transition-colors duration-300"
+            className="text-xs text-muted-foreground hover:text-foreground tracking-wide transition-colors duration-300 py-1 px-1.5"
           >
             Invite
           </button>
@@ -236,22 +244,30 @@ export default function BandPage() {
 
       {/* Band info dropdown */}
       {showBandInfo && (
-        <div className="px-5 py-3 bg-card/50 border-b border-border text-xs text-muted-foreground">
-          Share this code to invite members: <span className="font-mono font-medium text-accent tracking-widest">{band?.invite_code}</span>
+        <div className="px-4 sm:px-5 py-3 bg-card/50 border-b border-border text-xs text-muted-foreground">
+          Share this code to invite members: <span className="font-mono font-medium text-accent tracking-widest select-all">{band?.invite_code}</span>
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/30 z-30 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
         {sidebarOpen && (
-          <aside className="w-56 bg-sidebar border-r border-sidebar-border flex flex-col shrink-0 overflow-hidden">
+          <aside className="fixed md:relative inset-y-0 left-0 z-40 md:z-auto w-64 sm:w-56 bg-sidebar border-r border-sidebar-border flex flex-col shrink-0 overflow-hidden shadow-xl md:shadow-none pt-[calc(2.75rem+1px)] md:pt-0">
             {/* Setlists */}
             <div className="border-b border-sidebar-border">
               <div className="flex items-center justify-between px-4 py-3">
                 <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Setlists</span>
                 <button
                   onClick={() => setShowNewSetlist(!showNewSetlist)}
-                  className="p-0.5 text-muted-foreground hover:text-foreground transition-colors duration-300"
+                  className="p-1.5 sm:p-0.5 text-muted-foreground hover:text-foreground transition-colors duration-300"
                   aria-label="New setlist"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -277,11 +293,11 @@ export default function BandPage() {
                 </form>
               )}
 
-              <div className="max-h-44 overflow-y-auto">
+              <div className="max-h-52 sm:max-h-44 overflow-y-auto">
                 {setlists.map((setlist) => (
                   <div
                     key={setlist.id}
-                    className={`flex items-center justify-between px-4 py-2 cursor-pointer text-xs transition-all duration-200 group ${
+                    className={`flex items-center justify-between px-4 py-3 sm:py-2 cursor-pointer text-xs transition-all duration-200 group ${
                       activeSetlist === setlist.id
                         ? "bg-foreground/5 text-foreground border-l-2 border-accent"
                         : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
@@ -291,7 +307,7 @@ export default function BandPage() {
                     <span className="truncate tracking-wide">{setlist.name}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeleteSetlist(setlist.id); }}
-                      className="p-1 text-muted-foreground/40 hover:text-destructive active:text-destructive transition-colors duration-200"
+                      className="p-1.5 sm:p-1 text-muted-foreground/40 hover:text-destructive active:text-destructive transition-colors duration-200"
                       aria-label="Delete setlist"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -308,7 +324,7 @@ export default function BandPage() {
                 {activeSetlist && (
                   <button
                     onClick={() => setShowNewChart(!showNewChart)}
-                    className="p-0.5 text-muted-foreground hover:text-foreground transition-colors duration-300"
+                    className="p-1.5 sm:p-0.5 text-muted-foreground hover:text-foreground transition-colors duration-300"
                     aria-label="New chart"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -347,12 +363,12 @@ export default function BandPage() {
                 charts.map((chart) => (
                   <div
                     key={chart.id}
-                    className={`flex items-center justify-between px-4 py-2 cursor-pointer text-xs transition-all duration-200 group ${
+                    className={`flex items-center justify-between px-4 py-3 sm:py-2 cursor-pointer text-xs transition-all duration-200 group ${
                       activeChart === chart.id
                         ? "bg-foreground/5 text-foreground border-l-2 border-accent"
                         : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
                     }`}
-                    onClick={() => setActiveChart(chart.id)}
+                    onClick={() => handleSelectChart(chart.id)}
                   >
                     <div className="flex items-center gap-2 truncate">
                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
@@ -362,7 +378,7 @@ export default function BandPage() {
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeleteChart(chart.id); }}
-                      className="p-1 text-muted-foreground/40 hover:text-destructive active:text-destructive transition-colors duration-200"
+                      className="p-1.5 sm:p-1 text-muted-foreground/40 hover:text-destructive active:text-destructive transition-colors duration-200"
                       aria-label="Delete chart"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>

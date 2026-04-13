@@ -37,15 +37,15 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="absolute top-5 right-6">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 py-8">
+      <div className="absolute top-4 right-4 sm:top-5 sm:right-6">
         <ThemeToggle />
       </div>
 
       <div className="w-full max-w-sm">
-        <div className="mb-10">
+        <div className="mb-8 sm:mb-10">
           <p className="text-sm font-medium tracking-widest uppercase text-foreground/70 mb-1">BandApp</p>
-          <h1 className="text-2xl font-light tracking-tight">Create your account</h1>
+          <h1 className="text-xl sm:text-2xl font-light tracking-tight">Create your account</h1>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
@@ -61,7 +61,7 @@ export default function SignupPage() {
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+              className="w-full px-4 py-3 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
               required
             />
           </div>
@@ -72,7 +72,7 @@ export default function SignupPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+              className="w-full px-4 py-3 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
               required
             />
           </div>
@@ -83,7 +83,7 @@ export default function SignupPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
+              className="w-full px-4 py-3 rounded-md bg-background border border-border focus:outline-none focus:border-foreground/40 transition-colors duration-300"
               minLength={6}
               required
             />
@@ -92,7 +92,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-foreground text-background rounded-md text-sm tracking-wide hover:bg-foreground/85 transition-colors duration-300 disabled:opacity-40"
+            className="w-full py-3 px-4 bg-foreground text-background rounded-md text-sm tracking-wide hover:bg-foreground/85 transition-colors duration-300 disabled:opacity-40"
           >
             {loading ? "Creating account..." : "Sign Up"}
           </button>

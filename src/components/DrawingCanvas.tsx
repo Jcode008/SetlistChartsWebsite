@@ -262,11 +262,11 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
 
       {/* Floating drawing toolbar */}
       {showToolbar && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-2 py-1.5 shadow-lg z-10">
+        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-1 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-2.5 sm:px-2 py-2 sm:py-1.5 shadow-lg z-10 max-w-[calc(100vw-1.5rem)] overflow-x-auto scrollbar-none">
           {/* Tool selection */}
           <button
             onClick={() => setTool("pen")}
-            className={`p-1.5 rounded-lg transition-colors ${tool === "pen" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2.5 sm:p-1.5 rounded-lg transition-colors shrink-0 ${tool === "pen" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"}`}
             title="Pen"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -275,7 +275,7 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
           </button>
           <button
             onClick={() => setTool("highlighter")}
-            className={`p-1.5 rounded-lg transition-colors ${tool === "highlighter" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2.5 sm:p-1.5 rounded-lg transition-colors shrink-0 ${tool === "highlighter" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"}`}
             title="Highlighter"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -284,7 +284,7 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
           </button>
           <button
             onClick={() => setTool("eraser")}
-            className={`p-1.5 rounded-lg transition-colors ${tool === "eraser" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2.5 sm:p-1.5 rounded-lg transition-colors shrink-0 ${tool === "eraser" ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground"}`}
             title="Eraser"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -301,7 +301,7 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
                 <button
                   key={c.name}
                   onClick={() => setPenColor(idx)}
-                  className={`w-5 h-5 rounded-full border-2 transition-all ${penColor === idx ? "border-accent scale-110" : "border-transparent hover:border-muted-foreground/30"}`}
+                  className={`w-7 h-7 sm:w-5 sm:h-5 rounded-full border-2 transition-all shrink-0 ${penColor === idx ? "border-accent scale-110" : "border-transparent hover:border-muted-foreground/30"}`}
                   style={{ backgroundColor: isDark ? c.dark : c.value }}
                   title={c.name}
                 />
@@ -315,7 +315,7 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
             <button
               key={s}
               onClick={() => setPenSize(idx)}
-              className={`p-1.5 rounded-lg transition-colors ${penSize === idx ? "bg-foreground/10" : "hover:bg-foreground/5"}`}
+              className={`p-2.5 sm:p-1.5 rounded-lg transition-colors shrink-0 ${penSize === idx ? "bg-foreground/10" : "hover:bg-foreground/5"}`}
               title={`${s}px`}
             >
               <div className="rounded-full bg-foreground" style={{ width: Math.max(s * 1.5, 4), height: Math.max(s * 1.5, 4) }} />
@@ -325,7 +325,7 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
             <button
               key={s}
               onClick={() => setHighlighterSize(idx)}
-              className={`px-1.5 py-0.5 text-[10px] rounded transition-colors ${highlighterSize === idx ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-2 py-1 sm:px-1.5 sm:py-0.5 text-[10px] rounded transition-colors shrink-0 ${highlighterSize === idx ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {s}
             </button>
@@ -334,12 +334,12 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
           <div className="h-5 w-px bg-border mx-1" />
 
           {/* Undo / Clear */}
-          <button onClick={undo} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors" title="Undo">
+          <button onClick={undo} className="p-2.5 sm:p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors shrink-0" title="Undo">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 7"/>
             </svg>
           </button>
-          <button onClick={clearAll} className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive transition-colors" title="Clear all">
+          <button onClick={clearAll} className="p-2.5 sm:p-1.5 rounded-lg text-muted-foreground hover:text-destructive transition-colors shrink-0" title="Clear all">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
             </svg>
