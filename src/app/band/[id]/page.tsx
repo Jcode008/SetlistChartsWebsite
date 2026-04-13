@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import ChartEditor from "@/components/ChartEditor";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 interface Band {
   id: string;
@@ -53,6 +54,7 @@ export default function BandPage() {
   const [showBandInfo, setShowBandInfo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false); // closed by default on mobile
+  const [confirmDelete, setConfirmDelete] = useState<{ type: "setlist" | "chart"; id: string; name: string } | null>(null);
 
   const loadCharts = useCallback(async (setlistId: string) => {
     const { data } = await supabase
@@ -169,6 +171,16 @@ export default function BandPage() {
     if (activeChart === id) {
       setActiveChart(null);
     }
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmDelete) return;
+    if (confirmDelete.type === "setlist") {
+      await handleDeleteSetlist(confirmDelete.id);
+    } else {
+      await handleDeleteChart(confirmDelete.id);
+    }
+    setConfirmDelete(null);
   }
 
   async function handleUpdateChart(updated: Chart) {
@@ -306,7 +318,7 @@ export default function BandPage() {
                   >
                     <span className="truncate tracking-wide">{setlist.name}</span>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteSetlist(setlist.id); }}
+                      onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "setlist", id: setlist.id, name: setlist.name }); }}
                       className="p-1.5 sm:p-1 text-muted-foreground/40 hover:text-destructive active:text-destructive transition-colors duration-200"
                       aria-label="Delete setlist"
                     >
@@ -377,7 +389,7 @@ export default function BandPage() {
                       <span className="truncate tracking-wide">{chart.title}</span>
                     </div>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteChart(chart.id); }}
+                      onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "chart", id: chart.id, name: chart.title }); }}
                       className="p-1.5 sm:p-1 text-muted-foreground/40 hover:text-destructive active:text-destructive transition-colors duration-200"
                       aria-label="Delete chart"
                     >
@@ -406,6 +418,18 @@ export default function BandPage() {
           )}
         </main>
       </div>
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        title={confirmDelete?.type === "setlist" ? "Delete setlist?" : "Delete chart?"}
+        message={
+          confirmDelete?.type === "setlist"
+            ? `"${confirmDelete.name}" and all its charts will be permanently deleted.`
+            : `"${confirmDelete?.name}" will be permanently deleted.`
+        }
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import type { StaffData } from "./StaffNotation";
 
 const DrawingCanvas = dynamic(() => import("./DrawingCanvas"), { ssr: false });
 const StaffNotation = dynamic(() => import("./StaffNotation"), { ssr: false });
+const ConfirmDialog = dynamic(() => import("./ConfirmDialog"), { ssr: false });
 
 export interface Chart {
   id: string;
@@ -90,6 +91,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
   const [quickChordInput, setQuickChordInput] = useState("");
   const [tabBars, setTabBars] = useState(4);
   const [staffBars, setStaffBars] = useState(4);
+  const [confirmRemoveStaff, setConfirmRemoveStaff] = useState<number | null>(null);
   const quickChordRef = useRef<HTMLInputElement>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -213,6 +215,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
     const newList = staffDataList.filter((_, i) => i !== index);
     setStaffDataList(newList);
     debouncedSave({ staff_data: JSON.stringify(newList) });
+    setConfirmRemoveStaff(null);
   }
 
   function insertChordRow() {
@@ -1029,7 +1032,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
                         onChange={(newData) => handleStaffChange(idx, newData)}
                       />
                       <button
-                        onClick={() => removeStaff(idx)}
+                        onClick={() => setConfirmRemoveStaff(idx)}
                         className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 active:text-red-300 transition-colors"
                         title="Remove staff"
                       >
@@ -1059,7 +1062,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
                         onChange={(newData) => handleStaffChange(idx, newData)}
                       />
                       <button
-                        onClick={() => removeStaff(idx)}
+                        onClick={() => setConfirmRemoveStaff(idx)}
                         className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 active:text-red-300 transition-colors"
                         title="Remove staff"
                       >
@@ -1118,6 +1121,15 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
           <span>{viewMode === "edit" ? "Edit" : viewMode === "preview" ? "Preview" : "Split"}</span>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmRemoveStaff !== null}
+        title="Remove staff notation?"
+        message="This staff notation widget will be removed from the chart."
+        confirmLabel="Remove"
+        onConfirm={() => confirmRemoveStaff !== null && removeStaff(confirmRemoveStaff)}
+        onCancel={() => setConfirmRemoveStaff(null)}
+      />
     </div>
   );
 }
