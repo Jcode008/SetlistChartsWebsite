@@ -13,6 +13,7 @@ interface DrawingCanvasProps {
   strokes: Stroke[];
   onChange: (strokes: Stroke[]) => void;
   className?: string;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 const PEN_COLORS = [
@@ -26,7 +27,7 @@ const PEN_COLORS = [
 const PEN_SIZES = [1, 2, 4, 8];
 const HIGHLIGHTER_SIZES = [12, 20, 30];
 
-export default function DrawingCanvas({ strokes, onChange, className }: DrawingCanvasProps) {
+export default function DrawingCanvas({ strokes, onChange, className, scrollContainerRef }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -56,30 +57,42 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
     return PEN_SIZES[Math.min(penSize, PEN_SIZES.length - 1)] || 2;
   }, [tool, penSize, highlighterSize]);
 
-  // Resize canvas to match container
+  // Resize canvas to match container (full scroll height)
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const observer = new ResizeObserver(() => {
-      const rect = container.getBoundingClientRect();
+    function resize() {
+      if (!canvas || !container) return;
+      const scrollEl = scrollContainerRef?.current;
+      const w = container.offsetWidth || container.getBoundingClientRect().width;
+      const h = scrollEl ? scrollEl.scrollHeight : container.getBoundingClientRect().height;
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = rect.width + "px";
-      canvas.style.height = rect.height + "px";
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.scale(dpr, dpr);
-        redraw(ctx, rect.width, rect.height);
+        redraw(ctx, w, h);
       }
-    });
+    }
 
+    const observer = new ResizeObserver(resize);
     observer.observe(container);
-    return () => observer.disconnect();
+    if (scrollContainerRef?.current) observer.observe(scrollContainerRef.current);
+
+    // Also resize when scroll content changes
+    const mutObs = new MutationObserver(resize);
+    if (scrollContainerRef?.current) {
+      mutObs.observe(scrollContainerRef.current, { childList: true, subtree: true, attributes: true });
+    }
+
+    return () => { observer.disconnect(); mutObs.disconnect(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strokes]);
+  }, [strokes, scrollContainerRef]);
 
   function redraw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     ctx.clearRect(0, 0, w, h);
@@ -249,7 +262,7 @@ export default function DrawingCanvas({ strokes, onChange, className }: DrawingC
   }
 
   return (
-    <div ref={containerRef} className={`absolute inset-0 ${className || ""}`} style={{ touchAction: "none" }}>
+    <div ref={containerRef} className={`absolute inset-x-0 top-0 ${className || ""}`} style={{ touchAction: "none", minHeight: "100%" }}>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 cursor-crosshair"

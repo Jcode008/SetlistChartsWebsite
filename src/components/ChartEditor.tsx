@@ -57,12 +57,8 @@ const TAB_TEMPLATES: Record<string, { label: string; strings: string[] }> = {
 };
 
 const CHORD_REGEX = /^[A-G][#b]?(?:m|min|maj|dim|aug|sus[24]?|add[0-9]*|[0-9]+)*(?:\/[A-G][#b]?)?$/;
-const CHORD_PATTERN = /\b([A-G][#b]?(?:m|min|maj|dim|aug|sus[24]?|add[0-9]*|[0-9]+)?(?:\/[A-G][#b]?)?)\b/g;
-
 const CHORD_WIDTH = 6; // fixed width for each chord cell in auto-format
 const TAB_BEAT_WIDTH = 3; // characters per beat position in tab
-
-type ViewMode = "edit" | "preview" | "split";
 
 export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
   const [title, setTitle] = useState(chart.title);
@@ -80,7 +76,6 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
   const [tempo, setTempo] = useState(chart.tempo?.toString() || "120");
   const [timeSig, setTimeSig] = useState(chart.time_signature);
   const [saved, setSaved] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>("edit");
   const [showNotes, setShowNotes] = useState(false);
   const [drawingMode, setDrawingMode] = useState(false);
   const [showSectionMenu, setShowSectionMenu] = useState(false);
@@ -95,6 +90,7 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
   const quickChordRef = useRef<HTMLInputElement>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorScrollRef = useRef<HTMLDivElement>(null);
   const sectionMenuRef = useRef<HTMLDivElement>(null);
   const tabMenuRef = useRef<HTMLDivElement>(null);
   const staffMenuRef = useRef<HTMLDivElement>(null);
@@ -529,183 +525,6 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
     }
   }, [content]);
 
-  // -- Preview rendering --
-  function renderPreview() {
-    if (!content.trim()) {
-      return <div className="text-muted-foreground/30 text-sm italic">No content yet. Switch to Edit to start writing.</div>;
-    }
-
-    const lines = content.split("\n");
-    const elements: React.ReactNode[] = [];
-    let i = 0;
-    let currentSection = "";
-
-    while (i < lines.length) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      // Section header
-      const sectionMatch = trimmed.match(/^\[(.+)\]$/);
-      if (sectionMatch) {
-        currentSection = sectionMatch[1];
-
-        elements.push(
-          <div key={i} className="mt-6 mb-2 first:mt-0">
-            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-              {sectionMatch[1]}
-            </span>
-          </div>
-        );
-        i++;
-        continue;
-      }
-
-      // Staff notation lines
-      const staffMatch = trimmed.match(/^[𝄞𝄢𝄥\s]*[┌╔╠║│╚└┐╗╣┘╝]/);
-      if (staffMatch) {
-        const staffLines: string[] = [];
-        while (i < lines.length) {
-          const sl = lines[i].trim();
-          if (sl.match(/[┌╔╠║│╚└┐╗╣┘╝═─]/) || sl.match(/^[𝄞𝄢𝄥]/)) {
-            staffLines.push(lines[i]);
-            i++;
-          } else {
-            break;
-          }
-        }
-        elements.push(
-          <pre key={`staff-${i}`} className="font-mono text-[13px] leading-[1.3] text-foreground/85 rounded-md px-4 py-3 my-2 overflow-x-auto whitespace-pre bg-secondary/40">
-            {staffLines.join("\n")}
-          </pre>
-        );
-        continue;
-      }
-
-      // Tab lines
-      const tabLineMatch = trimmed.match(/^.{1,2}\|[\d\-hpbs/\\~x\s|]+$/i);
-      if (tabLineMatch) {
-        const tabLines: string[] = [];
-        while (i < lines.length) {
-          const tl = lines[i].trim();
-          if (tl.match(/^.{1,2}\|[\d\-hpbs/\\~x\s|]+$/i)) {
-            tabLines.push(lines[i]);
-            i++;
-          } else {
-            break;
-          }
-        }
-        elements.push(
-          <pre key={`tab-${i}`} className="font-mono text-[13px] leading-[1.4] text-foreground/85 rounded-md px-4 py-3 my-2 overflow-x-auto whitespace-pre bg-secondary/40">
-            {tabLines.join("\n")}
-          </pre>
-        );
-        continue;
-      }
-
-      // Chord row
-      const chordRowMatch = trimmed.match(/^\|.*\|$/);
-      if (chordRowMatch) {
-        elements.push(
-          <div key={i} className="font-mono text-sm my-0.5 text-foreground/80">
-            {renderChordsInLine(trimmed)}
-          </div>
-        );
-        i++;
-        continue;
-      }
-
-      // Repeat markers
-      if (trimmed.startsWith("||:") || trimmed.endsWith(":||")) {
-        elements.push(
-          <div key={i} className="font-mono text-sm text-accent/80 font-medium my-0.5">
-            {trimmed}
-          </div>
-        );
-        i++;
-        continue;
-      }
-
-      // Lyric lines
-      if (trimmed.startsWith(">")) {
-        elements.push(
-          <div key={i} className="text-sm italic text-foreground/60 pl-4 my-0.5 border-l-2 border-accent/30">
-            {trimmed.substring(1).trim()}
-          </div>
-        );
-        i++;
-        continue;
-      }
-
-      // Divider lines
-      if (trimmed.match(/^[─\-=]{10,}$/)) {
-        elements.push(<hr key={i} className="my-4 border-t border-border/60" />);
-        i++;
-        continue;
-      }
-
-      // Empty line
-      if (trimmed === "") {
-        elements.push(<div key={i} className="h-3" />);
-        i++;
-        continue;
-      }
-
-      // Regular text
-      elements.push(
-        <div key={i} className="text-sm text-foreground/75 my-0.5 leading-6">
-          {renderChordsInLine(trimmed)}
-        </div>
-      );
-      i++;
-    }
-
-    return <>{elements}</>;
-  }
-
-  function renderChordsInLine(line: string): React.ReactNode {
-    const parts: React.ReactNode[] = [];
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-    const regex = new RegExp(CHORD_PATTERN.source, "g");
-
-    while ((match = regex.exec(line)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(line.substring(lastIndex, match.index));
-      }
-      parts.push(
-        <span key={match.index} className="text-accent font-medium">
-          {match[0]}
-        </span>
-      );
-      lastIndex = regex.lastIndex;
-    }
-
-    if (lastIndex < line.length) {
-      parts.push(line.substring(lastIndex));
-    }
-
-    return parts.length > 0 ? parts : line;
-  }
-
-  // -- Icons --
-  const EditIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-    </svg>
-  );
-
-  const PreviewIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-    </svg>
-  );
-
-  const SplitIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/>
-    </svg>
-  );
-
   return (
     <div className="flex flex-col h-full">
       {/* Top toolbar: title + metadata */}
@@ -954,36 +773,9 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
 
         <div className="h-4 w-px bg-border mx-1" />
 
-        {/* View mode toggles */}
-        <div className="flex items-center bg-foreground/[0.03] rounded-md p-0.5 shrink-0">
-          <button
-            onClick={() => setViewMode("edit")}
-            className={`p-2 sm:p-1.5 rounded transition-colors duration-200 ${viewMode === "edit" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            title="Edit"
-          >
-            <EditIcon />
-          </button>
-          <button
-            onClick={() => setViewMode("split")}
-            className={`p-2 sm:p-1.5 rounded transition-colors duration-200 hidden sm:block ${viewMode === "split" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            title="Split view"
-          >
-            <SplitIcon />
-          </button>
-          <button
-            onClick={() => setViewMode("preview")}
-            className={`p-2 sm:p-1.5 rounded transition-colors duration-200 ${viewMode === "preview" ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            title="Preview"
-          >
-            <PreviewIcon />
-          </button>
-        </div>
-
-        <div className="h-4 w-px bg-border mx-1 shrink-0" />
-
         {/* Drawing mode toggle */}
         <button
-          onClick={() => { setDrawingMode(!drawingMode); if (!drawingMode && viewMode === "edit") setViewMode("preview"); }}
+          onClick={() => setDrawingMode(!drawingMode)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 text-[11px] rounded-md transition-colors duration-200 shrink-0 ${drawingMode ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"}`}
           title="Draw / Apple Pencil"
         >
@@ -1008,79 +800,48 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
 
       {/* Editor / Preview area */}
       <div className="flex-1 overflow-hidden flex relative">
-        {/* Edit pane */}
-        {(viewMode === "edit" || viewMode === "split") && (
-          <div className={`overflow-y-auto ${viewMode === "split" ? "w-1/2 border-r border-border" : "flex-1"}`}>
-            <div className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={handleSmartInput}
-                onKeyDown={handleKeyDown}
-                className="w-full font-mono text-[13px] sm:text-sm leading-7 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground/90 placeholder:text-muted-foreground/30"
-                placeholder={`[Intro]\n| C     | Am    | F     | G     |\n\n[Verse 1]\n| Am    | Am    | F     | F     |\n> Lyrics go here...\n\nTips:\n• Type | then a chord + space to auto-format\n• Press Enter on a chord row to add another\n• Use Quick button for fast chord entry\n• Press Format or Ctrl+Shift+F to tidy up\n• Tab key jumps between beat positions in tabs`}
-                spellCheck={false}
-              />
+        {/* Editor */}
+        <div ref={editorScrollRef} className="overflow-y-auto flex-1 relative">
+          <div className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={handleSmartInput}
+              onKeyDown={handleKeyDown}
+              className="w-full font-mono text-[13px] sm:text-sm leading-7 bg-transparent border-none focus:outline-none focus:ring-0 resize-none text-foreground/90 placeholder:text-muted-foreground/30"
+              placeholder={`[Intro]\n| C     | Am    | F     | G     |\n\n[Verse 1]\n| Am    | Am    | F     | F     |\n> Lyrics go here...\n\nTips:\n• Type | then a chord + space to auto-format\n• Press Enter on a chord row to add another\n• Use Quick button for fast chord entry\n• Press Format or Ctrl+Shift+F to tidy up\n• Tab key jumps between beat positions in tabs`}
+              spellCheck={false}
+            />
 
-              {/* Visual staff notation widgets in edit mode */}
-              {staffDataList.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {staffDataList.map((staffData, idx) => (
-                    <div key={idx} className="relative group">
-                      <StaffNotation
-                        data={staffData}
-                        onChange={(newData) => handleStaffChange(idx, newData)}
-                      />
-                      <button
-                        onClick={() => setConfirmRemoveStaff(idx)}
-                        className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 active:text-red-300 transition-colors"
-                        title="Remove staff"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Preview pane (with optional drawing overlay) */}
-        {(viewMode === "preview" || viewMode === "split") && (
-          <div className={`overflow-y-auto relative ${viewMode === "split" ? "w-1/2" : "flex-1"}`}>
-            <div className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-              {renderPreview()}
-
-              {/* Visual staff notation widgets */}
-              {staffDataList.length > 0 && (
-                <div className="mt-6 space-y-2">
-                  {staffDataList.map((staffData, idx) => (
-                    <div key={idx} className="relative group">
-                      <StaffNotation
-                        data={staffData}
-                        onChange={(newData) => handleStaffChange(idx, newData)}
-                      />
-                      <button
-                        onClick={() => setConfirmRemoveStaff(idx)}
-                        className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 active:text-red-300 transition-colors"
-                        title="Remove staff"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {drawingMode && (
-              <DrawingCanvas
-                strokes={drawingData}
-                onChange={handleDrawingChange}
-              />
+            {/* Visual staff notation widgets */}
+            {staffDataList.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {staffDataList.map((staffData, idx) => (
+                  <div key={idx} className="relative group">
+                    <StaffNotation
+                      data={staffData}
+                      onChange={(newData) => handleStaffChange(idx, newData)}
+                    />
+                    <button
+                      onClick={() => setConfirmRemoveStaff(idx)}
+                      className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded text-xs text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 active:text-red-300 transition-colors"
+                      title="Remove staff"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        )}
+          {drawingMode && (
+            <DrawingCanvas
+              strokes={drawingData}
+              onChange={handleDrawingChange}
+              scrollContainerRef={editorScrollRef}
+            />
+          )}
+        </div>
 
         {/* Notes panel - overlay on mobile, sidebar on desktop */}
         {showNotes && (
@@ -1118,7 +879,6 @@ export default function ChartEditor({ chart, onUpdate }: ChartEditorProps) {
         <div className="flex items-center gap-2 sm:gap-4">
           <span className="hidden sm:inline">{content.split("\n").length} lines</span>
           {drawingMode && <span className="text-accent">Drawing</span>}
-          <span>{viewMode === "edit" ? "Edit" : viewMode === "preview" ? "Preview" : "Split"}</span>
         </div>
       </div>
 
